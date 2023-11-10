@@ -48,7 +48,7 @@ for (let i = 0; i < 10; i++) {
 for (let i = 0; i < 10; i++) {
   const brand = brands[i];
 
-  invariant(brand.brandId, "brandId should be defined");
+  invariant(brand?.brandId, "brandId should be defined");
 
   brandManagers.push({
     brandManagerId: faker.number.int(),
@@ -73,7 +73,7 @@ for (let i = 0; i < 10; i++) {
 for (let i = 0; i < 10; i++) {
   const creator = creators[i];
 
-  invariant(creator.creatorId, "creatorId should be defined");
+  invariant(creator?.creatorId, "creatorId should be defined");
 
   creatorManagers.push({
     creatorManagerId: faker.number.int(),

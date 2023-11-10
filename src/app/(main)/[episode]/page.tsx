@@ -1,43 +1,43 @@
-import { cache } from 'react'
-import { notFound } from 'next/navigation'
+import { cache } from "react";
+import { notFound } from "next/navigation";
 
-import { Container } from '@/components/Container'
-import { EpisodePlayButton } from '@/components/EpisodePlayButton'
-import { FormattedDate } from '@/components/FormattedDate'
-import { PauseIcon } from '@/components/PauseIcon'
-import { PlayIcon } from '@/components/PlayIcon'
-import { getAllEpisodes } from '@/lib/episodes'
+import { Container } from "@/components/Container";
+import { EpisodePlayButton } from "@/components/EpisodePlayButton";
+import { FormattedDate } from "@/components/FormattedDate";
+import { PauseIcon } from "@/components/PauseIcon";
+import { PlayIcon } from "@/components/PlayIcon";
+import { getAllEpisodes } from "@/lib/episodes";
 
 const getEpisode = cache(async (id: string) => {
-  let allEpisodes = await getAllEpisodes()
-  let episode = allEpisodes.find((episode) => episode.id.toString() === id)
+  let allEpisodes = await getAllEpisodes();
+  let episode = allEpisodes.find((episode) => episode.id.toString() === id);
 
   if (!episode) {
-    notFound()
+    notFound();
   }
 
-  return episode
-})
+  return episode;
+});
 
 export async function generateMetadata({
   params,
 }: {
-  params: { episode: string }
+  params: { episode: string };
 }) {
-  let episode = await getEpisode(params.episode)
+  let episode = await getEpisode(params.episode);
 
   return {
     title: episode.title,
-  }
+  };
 }
 
 export default async function Episode({
   params,
 }: {
-  params: { episode: string }
+  params: { episode: string };
 }) {
-  let episode = await getEpisode(params.episode)
-  let date = new Date(episode.published)
+  let episode = await getEpisode(params.episode);
+  let date = new Date(episode.published);
 
   return (
     <article className="py-16 lg:py-36">
@@ -75,5 +75,5 @@ export default async function Episode({
         />
       </Container>
     </article>
-  )
+  );
 }

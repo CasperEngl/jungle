@@ -1,27 +1,27 @@
-import { useId } from 'react'
+import { useId } from "react";
 
 function randomBetween(min: number, max: number, seed = 1) {
   return () => {
-    let rand = Math.sin(seed++) * 10000
-    rand = rand - Math.floor(rand)
-    return Math.floor(rand * (max - min + 1) + min)
-  }
+    let rand = Math.sin(seed++) * 10000;
+    rand = rand - Math.floor(rand);
+    return Math.floor(rand * (max - min + 1) + min);
+  };
 }
 
-export function Waveform(props: React.ComponentPropsWithoutRef<'svg'>) {
-  let id = useId()
+export function Waveform(props: React.ComponentPropsWithoutRef<"svg">) {
+  let id = useId();
   let bars = {
     total: 100,
     width: 2,
     gap: 2,
     minHeight: 40,
     maxHeight: 100,
-  }
+  };
 
   let barHeights = Array.from(
     { length: bars.total },
     randomBetween(bars.minHeight, bars.maxHeight),
-  )
+  );
 
   return (
     <svg aria-hidden="true" {...props}>
@@ -63,5 +63,5 @@ export function Waveform(props: React.ComponentPropsWithoutRef<'svg'>) {
         opacity="0.25"
       />
     </svg>
-  )
+  );
 }

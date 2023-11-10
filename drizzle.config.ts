@@ -1,12 +1,11 @@
-import type { Config } from 'drizzle-kit'
-import * as dotenv from 'dotenv'
-dotenv.config()
+import { serverEnv } from "./src/env.server";
+import type { Config } from "drizzle-kit";
 
 export default {
-  schema: './src/app/planetscale/planetscale.ts',
-  out: './drizzle',
-  driver: 'mysql2',
+  schema: "./src/app/planetscale/schema.ts",
+  out: "./drizzle",
+  driver: "mysql2",
   dbCredentials: {
-    connectionString: process.env.PLANETSCALE_URL!,
+    connectionString: serverEnv.PLANETSCALE_URL,
   },
-} satisfies Config
+} satisfies Config;

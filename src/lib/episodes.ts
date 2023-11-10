@@ -1,16 +1,16 @@
-import { parse as parseFeed } from 'rss-to-json'
-import { array, number, object, parse, string } from 'valibot'
+import { parse as parseFeed } from "rss-to-json";
+import { array, number, object, parse, string } from "valibot";
 
 export interface Episode {
-  id: number
-  title: string
-  published: Date
-  description: string
-  content: string
+  id: number;
+  title: string;
+  published: Date;
+  description: string;
+  content: string;
   audio: {
-    src: string
-    type: string
-  }
+    src: string;
+    type: string;
+  };
 }
 
 export async function getAllEpisodes() {
@@ -30,12 +30,12 @@ export async function getAllEpisodes() {
         ),
       }),
     ),
-  })
+  });
 
   let feed = (await parseFeed(
-    'https://their-side-feed.vercel.app/api/feed',
-  )) as unknown
-  let items = parse(FeedSchema, feed).items
+    "https://their-side-feed.vercel.app/api/feed",
+  )) as unknown;
+  let items = parse(FeedSchema, feed).items;
 
   let episodes: Array<Episode> = items.map(
     ({ id, title, description, content, enclosures, published }) => ({
@@ -49,7 +49,7 @@ export async function getAllEpisodes() {
         type: enclosure.type,
       }))[0],
     }),
-  )
+  );
 
-  return episodes
+  return episodes;
 }

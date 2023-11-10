@@ -1,45 +1,45 @@
-'use client'
+"use client";
 
-import { useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 
-import { useAudioPlayer } from '@/components/AudioProvider'
-import { ForwardButton } from '@/components/player/ForwardButton'
-import { MuteButton } from '@/components/player/MuteButton'
-import { PlaybackRateButton } from '@/components/player/PlaybackRateButton'
-import { PlayButton } from '@/components/player/PlayButton'
-import { RewindButton } from '@/components/player/RewindButton'
-import { Slider } from '@/components/player/Slider'
+import { useAudioPlayer } from "@/components/AudioProvider";
+import { ForwardButton } from "@/components/player/ForwardButton";
+import { MuteButton } from "@/components/player/MuteButton";
+import { PlaybackRateButton } from "@/components/player/PlaybackRateButton";
+import { PlayButton } from "@/components/player/PlayButton";
+import { RewindButton } from "@/components/player/RewindButton";
+import { Slider } from "@/components/player/Slider";
 
 function parseTime(seconds: number) {
-  let hours = Math.floor(seconds / 3600)
-  let minutes = Math.floor((seconds - hours * 3600) / 60)
-  seconds = seconds - hours * 3600 - minutes * 60
-  return [hours, minutes, seconds]
+  let hours = Math.floor(seconds / 3600);
+  let minutes = Math.floor((seconds - hours * 3600) / 60);
+  seconds = seconds - hours * 3600 - minutes * 60;
+  return [hours, minutes, seconds];
 }
 
 function formatHumanTime(seconds: number) {
-  let [h, m, s] = parseTime(seconds)
-  return `${h} hour${h === 1 ? '' : 's'}, ${m} minute${
-    m === 1 ? '' : 's'
-  }, ${s} second${s === 1 ? '' : 's'}`
+  let [h, m, s] = parseTime(seconds);
+  return `${h} hour${h === 1 ? "" : "s"}, ${m} minute${
+    m === 1 ? "" : "s"
+  }, ${s} second${s === 1 ? "" : "s"}`;
 }
 
 export function AudioPlayer() {
-  let player = useAudioPlayer()
+  let player = useAudioPlayer();
 
-  let wasPlayingRef = useRef(false)
+  let wasPlayingRef = useRef(false);
 
   let [currentTime, setCurrentTime] = useState<number | null>(
     player.currentTime,
-  )
+  );
 
   useEffect(() => {
-    setCurrentTime(null)
-  }, [player.currentTime])
+    setCurrentTime(null);
+  }, [player.currentTime]);
 
   if (!player.episode) {
-    return null
+    return null;
   }
 
   return (
@@ -73,15 +73,15 @@ export function AudioPlayer() {
             value={[currentTime ?? player.currentTime]}
             onChange={([value]) => setCurrentTime(value)}
             onChangeEnd={([value]) => {
-              player.seek(value)
+              player.seek(value);
               if (wasPlayingRef.current) {
-                player.play()
+                player.play();
               }
             }}
             numberFormatter={{ format: formatHumanTime } as Intl.NumberFormat}
             onChangeStart={() => {
-              wasPlayingRef.current = player.playing
-              player.pause()
+              wasPlayingRef.current = player.playing;
+              player.pause();
             }}
           />
           <div className="flex items-center gap-4">
@@ -95,5 +95,5 @@ export function AudioPlayer() {
         </div>
       </div>
     </div>
-  )
+  );
 }

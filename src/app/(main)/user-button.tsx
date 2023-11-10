@@ -1,12 +1,12 @@
-'use client'
+"use client";
 
-import { UserButton, useUser } from '@clerk/nextjs'
+import { UserButton, useUser } from "@clerk/nextjs";
 
 export function UserAvatar() {
-  const user = useUser()
+  const user = useUser();
 
   if (!user) {
-    return 'loading...'
+    return "loading...";
   }
 
   return (
@@ -14,11 +14,11 @@ export function UserAvatar() {
       appearance={{
         elements: {
           userButtonAvatarBox: {
-            width: '5rem',
-            height: '5rem',
+            width: "5rem",
+            height: "5rem",
           },
         },
       }}
     />
-  )
+  );
 }

@@ -1,26 +1,26 @@
-import '@/styles/tailwind.css'
-import { ClerkProvider } from '@clerk/nextjs'
-import { type Metadata } from 'next'
+import "@/styles/tailwind.css";
+import { ClerkProvider } from "@clerk/nextjs";
+import { type Metadata } from "next";
 
 export const metadata: Metadata = {
   title: {
-    template: '%s - Their Side',
+    template: "%s - Their Side",
     default:
-      'Their Side - Conversations with the most tragically misunderstood people of our time',
+      "Their Side - Conversations with the most tragically misunderstood people of our time",
   },
   description:
-    'Conversations with the most tragically misunderstood people of our time.',
-}
+    "Conversations with the most tragically misunderstood people of our time.",
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en" className="h-full bg-white antialiased">
       <ClerkProvider
-        publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || ''}
+        publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || ""}
       >
         <head>
           <link
@@ -38,5 +38,5 @@ export default function RootLayout({
         </body>
       </ClerkProvider>
     </html>
-  )
+  );
 }

@@ -1,26 +1,26 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import clsx from 'clsx'
+import { useState } from "react";
+import clsx from "clsx";
 
-import { TinyWaveFormIcon } from '@/components/TinyWaveFormIcon'
+import { TinyWaveFormIcon } from "@/components/TinyWaveFormIcon";
 
-export function AboutSection(props: React.ComponentPropsWithoutRef<'section'>) {
-  let [isExpanded, setIsExpanded] = useState(false)
+export function AboutSection(props: React.ComponentPropsWithoutRef<"section">) {
+  let [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <section {...props}>
       <h2 className="flex items-center font-mono text-sm font-medium leading-7 text-slate-900">
         <TinyWaveFormIcon
-          colors={['fill-violet-300', 'fill-pink-300']}
+          colors={["fill-violet-300", "fill-pink-300"]}
           className="h-2.5 w-2.5"
         />
         <span className="ml-2.5">About</span>
       </h2>
       <p
         className={clsx(
-          'mt-2 text-base leading-7 text-slate-700',
-          !isExpanded && 'lg:line-clamp-4',
+          "mt-2 text-base leading-7 text-slate-700",
+          !isExpanded && "lg:line-clamp-4",
         )}
       >
         In this show, Eric and Wes dig deep to get to the facts with guests who
@@ -39,5 +39,5 @@ export function AboutSection(props: React.ComponentPropsWithoutRef<'section'>) {
         </button>
       )}
     </section>
-  )
+  );
 }

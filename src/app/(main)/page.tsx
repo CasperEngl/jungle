@@ -112,7 +112,7 @@ export default async function Home(props: { searchParams: NextSearchParams }) {
           <PostEntry key={post.postId} post={post} />
         ))}
 
-        <LoadMore onLoad={loadMorePosts} />
+        {/* <LoadMore onLoad={loadMorePosts} /> */}
       </div>
     </div>
   );

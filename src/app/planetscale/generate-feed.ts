@@ -1,26 +1,27 @@
 "use server";
 
-import * as schema from "@/app/planetscale/schema";
-import { InferSelectModel } from "drizzle-orm";
+import { selectPostSchema } from "@/app/planetscale/planetscale.schema";
 import invariant from "tiny-invariant";
 import {
-  parsePageToken,
+  PaginatedSchema,
+  calculateScore,
+  createPaginatedSchema,
   getPostsFromFollowedBrandsAndCreators,
   getUserInteractionsForPosts,
-  calculateScore,
-  generatePageToken,
-  PaginatedResult,
+  hashPageToken,
+  parsePageToken,
 } from "./planetscale";
+import { z } from "zod";
 
 export async function generateFeed(options: {
   userId?: string;
-  pageToken: string | null;
+  nextPageToken: string | null;
   pageSize: number;
 }) {
   invariant(options.userId, "User ID is required");
 
-  const lastTimestamp = options.pageToken
-    ? parsePageToken(options.pageToken)
+  const lastTimestamp = options.nextPageToken
+    ? parsePageToken(options.nextPageToken)
     : Date.now();
 
   invariant(lastTimestamp, "Invalid page token");
@@ -28,7 +29,7 @@ export async function generateFeed(options: {
   let posts = await getPostsFromFollowedBrandsAndCreators({
     userId: options.userId,
     lastTimestamp,
-    pageSize: options.pageSize + 1,
+    pageSize: options.pageSize,
   });
   const postIds = posts.map((post) => post.postId);
   const interactions = await getUserInteractionsForPosts(postIds);
@@ -47,21 +48,32 @@ export async function generateFeed(options: {
     }))
     .toSorted((a, b) => b.score - a.score);
 
+  console.table({
+    scoredPosts: scoredPosts.length,
+    pageSize: options.pageSize,
+    pageToken: options.nextPageToken,
+  });
+
   let nextPageToken: string | null = null;
+
   if (scoredPosts.length > options.pageSize) {
     const lastPostTimestamp =
       scoredPosts?.[options.pageSize - 1]?.createdAt.getTime();
 
     invariant(lastPostTimestamp, "Invalid last post timestamp");
 
-    nextPageToken = generatePageToken(lastPostTimestamp);
+    nextPageToken = hashPageToken(lastPostTimestamp);
 
     scoredPosts = scoredPosts.slice(0, options.pageSize);
   }
 
-  return {
+  return createPaginatedSchema(
+    selectPostSchema.extend({
+      score: z.number(),
+    }),
+  ).parse({
     items: scoredPosts,
     nextPageToken,
-    previousPageToken: options.pageToken,
-  } satisfies PaginatedResult<InferSelectModel<typeof schema.postsTable>>;
+    previousPageToken: options.nextPageToken,
+  });
 }

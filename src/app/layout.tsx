@@ -1,6 +1,7 @@
 import { Providers } from "@/app/providers";
 import "@/styles/tailwind.css";
 import { type Metadata } from "next";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 export const metadata: Metadata = {
   title: {
@@ -33,6 +34,8 @@ export default function RootLayout({
         </head>
         <body className="flex min-h-full">
           <div className="w-full">{children}</div>
+
+          <ReactQueryDevtools />
         </body>
       </html>
     </Providers>

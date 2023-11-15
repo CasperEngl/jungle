@@ -1,7 +1,6 @@
 import * as schema from "@/app/planetscale/schema";
 import { serverEnv } from "@/env.server";
 import { connect } from "@planetscale/database";
-import * as crypto from "crypto";
 import {
   InferSelectModel,
   and,
@@ -15,28 +14,24 @@ import {
 import { drizzle } from "drizzle-orm/planetscale-serverless";
 import ms from "ms";
 import { z } from "zod";
+import jwt from "jsonwebtoken";
 
 export function hashPageToken(timestamp: number) {
-  return crypto
-    .createHmac("sha256", serverEnv.APP_SALT)
-    .update(timestamp.toString())
-    .digest("hex");
+  return jwt.sign({ timestamp }, serverEnv.JWT_SECRET);
 }
 
 export function parsePageToken(token: string) {
-  try {
-    const [hashedTimestamp, timestamp] = token.split(":");
-    if (hashPageToken(parseInt(timestamp, 10)) === hashedTimestamp) {
-      return parseInt(timestamp, 10);
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
+  const decoded = z
+    .object({
+      timestamp: z.number(),
+    })
+    .safeParse(jwt.verify(token, serverEnv.JWT_SECRET));
 
-export function generatePageToken(timestamp: number) {
-  return `${hashPageToken(timestamp)}:${timestamp}`;
+  if (decoded.success) {
+    return decoded.data.timestamp;
+  }
+
+  return null;
 }
 
 // create the connection
@@ -52,7 +47,7 @@ type UserInteraction = {
   shares: number;
 };
 
-export function createPaginatedResult<ItemType extends z.ZodTypeAny>(
+export function createPaginatedSchema<ItemType extends z.ZodTypeAny>(
   items: ItemType,
 ) {
   return z.object({
@@ -62,8 +57,8 @@ export function createPaginatedResult<ItemType extends z.ZodTypeAny>(
   });
 }
 
-export type PaginatedResult<T extends z.ZodTypeAny> = z.infer<
-  ReturnType<typeof createPaginatedResult<T>>
+export type PaginatedSchema<T extends z.ZodTypeAny> = z.infer<
+  ReturnType<typeof createPaginatedSchema<T>>
 >;
 
 function selectUserBrandManagers(userId: string) {
@@ -96,13 +91,15 @@ async function selectUserCreators(userId: string) {
     );
 }
 
+const countSchema = z.coerce.string().default("0");
+
 export async function getUserInteractionsForPosts(postIds: number[]) {
   const interactions = new Map<number, UserInteraction>();
 
   const promises = postIds.map(async (postId) => {
     const likesPromise = planetscale
       .select({
-        count: sql`CAST(COUNT(${schema.likesTable.likeId}) as int)`,
+        count: sql`CAST(COUNT(${schema.likesTable.likeId}) as UNSIGNED)`,
       })
       .from(schema.likesTable)
       .where(eq(schema.likesTable.postId, postId))
@@ -110,7 +107,7 @@ export async function getUserInteractionsForPosts(postIds: number[]) {
 
     const commentsPromise = planetscale
       .select({
-        count: sql`CAST(COUNT(${schema.commentsTable.commentId}) as int)`,
+        count: sql`CAST(COUNT(${schema.commentsTable.commentId}) as UNSIGNED)`,
       })
       .from(schema.commentsTable)
       .where(eq(schema.commentsTable.postId, postId))
@@ -118,7 +115,7 @@ export async function getUserInteractionsForPosts(postIds: number[]) {
 
     const sharesPromise = planetscale
       .select({
-        count: sql`CAST(COUNT(${schema.sharesTable.shareId}) as int)`,
+        count: sql`CAST(COUNT(${schema.sharesTable.shareId}) as UNSIGNED)`,
       })
       .from(schema.sharesTable)
       .where(eq(schema.sharesTable.postId, postId))
@@ -131,9 +128,18 @@ export async function getUserInteractionsForPosts(postIds: number[]) {
     ]);
 
     interactions.set(postId, {
-      likes: likes.status === "fulfilled" ? likes.value.length : 0,
-      comments: comments.status === "fulfilled" ? comments.value.length : 0,
-      shares: shares.status === "fulfilled" ? shares.value.length : 0,
+      likes:
+        likes.status === "fulfilled"
+          ? parseInt(countSchema.parse(likes.value[0]?.count), 10)
+          : 0,
+      comments:
+        comments.status === "fulfilled"
+          ? parseInt(countSchema.parse(comments.value[0]?.count), 10)
+          : 0,
+      shares:
+        shares.status === "fulfilled"
+          ? parseInt(countSchema.parse(shares.value[0]?.count), 10)
+          : 0,
     });
   });
 

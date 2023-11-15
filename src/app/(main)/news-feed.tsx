@@ -1,32 +1,45 @@
 "use client";
 
 import { generateFeed } from "@/app/planetscale/generate-feed";
-import { PaginatedResult } from "@/app/planetscale/planetscale";
+import { PaginatedSchema } from "@/app/planetscale/planetscale";
+import { selectPostSchema } from "@/app/planetscale/planetscale.schema";
 import { postsTable } from "@/app/planetscale/schema";
 import { Container } from "@/components/Container";
 import { FormattedDate } from "@/components/FormattedDate";
-import { useUser } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { InferSelectModel } from "drizzle-orm";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import invariant from "tiny-invariant";
 
 export function NewsFeed(props: {
-  initialFeed: PaginatedResult<InferSelectModel<typeof postsTable>>;
+  initialFeed: PaginatedSchema<typeof selectPostSchema>;
 }) {
-  const { user } = useUser();
-  const [loadMoreRef, inView] = useInView();
+  const { userId } = useAuth();
+  const [ref, inView] = useInView();
 
-  const loadMoreQuery = useInfiniteQuery({
-    queryKey: ["loadMore", props.initialFeed.nextPageToken],
+  const { fetchNextPage, ...feedQuery } = useInfiniteQuery({
+    enabled: !!userId,
+    queryKey: ["feed"],
+    initialData: {
+      pages: [props.initialFeed],
+      pageParams: [props.initialFeed.nextPageToken],
+    },
     initialPageParam: props.initialFeed.nextPageToken,
     queryFn: async ({ pageParam }) => {
+      console.table({ pageParam });
+
+      invariant(userId, "No user ID found");
+
       const newData = await generateFeed({
         pageSize: 10,
-        pageToken: pageParam,
-        userId: user?.id,
+        nextPageToken: pageParam,
+        userId: userId,
       });
+
+      console.table({ newData });
 
       return newData;
     },
@@ -34,17 +47,20 @@ export function NewsFeed(props: {
     getNextPageParam: (lastPage) => lastPage?.nextPageToken,
   });
 
-  if (inView && !loadMoreQuery.isFetching) {
-    loadMoreQuery.fetchNextPage();
-  }
+  useEffect(() => {
+    console.table({ inView });
+    if (inView) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, inView]);
 
   return (
     <div className="divide-y divide-slate-100 sm:mt-4 lg:mt-8 lg:border-t lg:border-slate-100">
-      {props.initialFeed.items.map((post) => (
-        <PostEntry key={post.postId} post={post} />
-      ))}
+      {feedQuery.data?.pages
+        .flatMap((page) => page.items)
+        .map((post) => <PostEntry key={post.postId} post={post} />)}
 
-      <div ref={loadMoreRef}></div>
+      <div ref={ref}></div>
     </div>
   );
 }

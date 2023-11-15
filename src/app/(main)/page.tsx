@@ -3,7 +3,7 @@
 
 import { NewsFeed } from "@/app/(main)/news-feed";
 import { generateFeed } from "@/app/planetscale/generate-feed";
-import { createPaginatedResult } from "@/app/planetscale/planetscale";
+import { createPaginatedSchema } from "@/app/planetscale/planetscale";
 import { selectPostSchema } from "@/app/planetscale/planetscale.schema";
 import { Container } from "@/components/Container";
 import { auth } from "@clerk/nextjs";
@@ -22,12 +22,11 @@ export default async function Home(props: { searchParams: NextSearchParams }) {
   let feed = await generateFeed({
     userId,
     pageSize: 10,
-    pageToken: null,
+    nextPageToken: null,
   });
 
-  const initialFeed = createPaginatedResult(selectPostSchema).parse(
-    JSON.parse(JSON.stringify(feed)),
-  );
+  // const stringifiedFeed = JSON.stringify(feed);
+  // const parsedFeed = JSON.parse(stringifiedFeed);
 
   return (
     <div className="pb-12 pt-16 sm:pb-4 lg:pt-12">
@@ -35,7 +34,7 @@ export default async function Home(props: { searchParams: NextSearchParams }) {
         <h1 className="text-2xl font-bold leading-7 text-slate-900">News</h1>
       </Container>
 
-      <NewsFeed initialFeed={initialFeed} />
+      <NewsFeed initialFeed={feed} />
     </div>
   );
 }

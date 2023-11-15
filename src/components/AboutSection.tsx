@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import clsx from "clsx";
-
-import { TinyWaveFormIcon } from "@/components/TinyWaveFormIcon";
+import { useState } from "react";
 
 export function AboutSection(props: React.ComponentPropsWithoutRef<"section">) {
   let [isExpanded, setIsExpanded] = useState(false);
@@ -11,10 +9,6 @@ export function AboutSection(props: React.ComponentPropsWithoutRef<"section">) {
   return (
     <section {...props}>
       <h2 className="flex items-center font-mono text-sm font-medium leading-7 text-slate-900">
-        <TinyWaveFormIcon
-          colors={["fill-violet-300", "fill-pink-300"]}
-          className="h-2.5 w-2.5"
-        />
         <span className="ml-2.5">About</span>
       </h2>
       <p

@@ -1,5 +1,6 @@
 import { UserAvatar } from "@/app/(main)/user-button";
 import { currentUser, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
+import { revalidateTag } from "next/cache";
 import Link from "next/link";
 
 export default async function MainLayout({

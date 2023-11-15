@@ -1,10 +1,8 @@
-import { cache } from "react";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 
 import { Container } from "@/components/Container";
 import { FormattedDate } from "@/components/FormattedDate";
-import { PauseIcon } from "@/components/PauseIcon";
-import { PlayIcon } from "@/components/PlayIcon";
 import { getAllEpisodes } from "@/lib/episodes";
 
 const getEpisode = cache(async (id: string) => {

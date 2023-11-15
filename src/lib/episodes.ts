@@ -47,7 +47,7 @@ export async function getAllEpisodes() {
       audio: enclosures.map((enclosure) => ({
         src: enclosure.url,
         type: enclosure.type,
-      }))[0],
+      }))[0]!,
     }),
   );
 

@@ -1,5 +1,5 @@
+import { Providers } from "@/app/providers";
 import "@/styles/tailwind.css";
-import { ClerkProvider } from "@clerk/nextjs";
 import { type Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -18,10 +18,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full bg-white antialiased">
-      <ClerkProvider
-        publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || ""}
-      >
+    <Providers>
+      <html lang="en" className="h-full bg-white antialiased">
         <head>
           <link
             rel="preconnect"
@@ -36,7 +34,7 @@ export default function RootLayout({
         <body className="flex min-h-full">
           <div className="w-full">{children}</div>
         </body>
-      </ClerkProvider>
-    </html>
+      </html>
+    </Providers>
   );
 }

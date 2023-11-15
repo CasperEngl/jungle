@@ -14,8 +14,7 @@ import {
 } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/planetscale-serverless";
 import ms from "ms";
-import "server-only";
-import invariant from "tiny-invariant";
+import { z } from "zod";
 
 export function hashPageToken(timestamp: number) {
   return crypto
@@ -53,10 +52,19 @@ type UserInteraction = {
   shares: number;
 };
 
-type PaginatedResult<T> = {
-  items: T[];
-  nextPageToken: string | null;
-};
+export function createPaginatedResult<ItemType extends z.ZodTypeAny>(
+  items: ItemType,
+) {
+  return z.object({
+    items: z.array(items),
+    nextPageToken: z.string().nullable(),
+    previousPageToken: z.string().nullable(),
+  });
+}
+
+export type PaginatedResult<T extends z.ZodTypeAny> = z.infer<
+  ReturnType<typeof createPaginatedResult<T>>
+>;
 
 function selectUserBrandManagers(userId: string) {
   return planetscale
@@ -88,7 +96,7 @@ async function selectUserCreators(userId: string) {
     );
 }
 
-async function getUserInteractionsForPosts(postIds: number[]) {
+export async function getUserInteractionsForPosts(postIds: number[]) {
   const interactions = new Map<number, UserInteraction>();
 
   const promises = postIds.map(async (postId) => {
@@ -134,7 +142,7 @@ async function getUserInteractionsForPosts(postIds: number[]) {
   return interactions;
 }
 
-function calculateScore(options: {
+export function calculateScore(options: {
   post: InferSelectModel<typeof schema.postsTable>;
   interactions: UserInteraction;
 }) {
@@ -147,53 +155,6 @@ function calculateScore(options: {
     options.interactions.shares * 3; // weighted score
 
   return engagementScore / (recencyScore + 1); // Adding 1 to avoid division by zero
-}
-
-export async function generateFeed(options: {
-  userId: string;
-  pageToken: string | null;
-  pageSize: number;
-}) {
-  const lastTimestamp = options.pageToken
-    ? parsePageToken(options.pageToken)
-    : Date.now();
-
-  invariant(lastTimestamp, "Invalid page token");
-
-  let posts = await getPostsFromFollowedBrandsAndCreators({
-    userId: options.userId,
-    lastTimestamp,
-    pageSize: options.pageSize + 1,
-  });
-  const postIds = posts.map((post) => post.postId);
-  const interactions = await getUserInteractionsForPosts(postIds);
-
-  let scoredPosts = posts.map((post) => ({
-    ...post,
-    score: calculateScore({
-      post,
-      interactions: interactions.get(post.postId) || {
-        likes: 0,
-        comments: 0,
-        shares: 0,
-      },
-    }),
-  }));
-
-  let sortedScoredPosts = scoredPosts.toSorted((a, b) => b.score - a.score);
-
-  let nextPageToken: string | null = null;
-  if (sortedScoredPosts.length > options.pageSize) {
-    const lastPostTimestamp =
-      sortedScoredPosts[options.pageSize - 1].createdAt.getTime();
-    nextPageToken = generatePageToken(lastPostTimestamp);
-    sortedScoredPosts = sortedScoredPosts.slice(0, options.pageSize);
-  }
-
-  return {
-    items: sortedScoredPosts,
-    nextPageToken,
-  } satisfies PaginatedResult<InferSelectModel<typeof schema.postsTable>>;
 }
 
 export async function getPostsFromFollowedBrandsAndCreators(options: {

@@ -2,7 +2,6 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 
 import { Container } from "@/components/Container";
-import { EpisodePlayButton } from "@/components/EpisodePlayButton";
 import { FormattedDate } from "@/components/FormattedDate";
 import { PauseIcon } from "@/components/PauseIcon";
 import { PlayIcon } from "@/components/PlayIcon";
@@ -44,16 +43,6 @@ export default async function Episode({
       <Container>
         <header className="flex flex-col">
           <div className="flex items-center gap-6">
-            <EpisodePlayButton
-              episode={episode}
-              className="group relative flex h-18 w-18 flex-shrink-0 items-center justify-center rounded-full bg-slate-700 hover:bg-slate-900 focus:outline-none focus:ring focus:ring-slate-700 focus:ring-offset-4"
-              playing={
-                <PauseIcon className="h-9 w-9 fill-white group-active:fill-white/80" />
-              }
-              paused={
-                <PlayIcon className="h-9 w-9 fill-white group-active:fill-white/80" />
-              }
-            />
             <div className="flex flex-col">
               <h1 className="mt-2 text-4xl font-bold text-slate-900">
                 {episode.title}

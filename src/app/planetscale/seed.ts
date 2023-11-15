@@ -83,7 +83,7 @@ for (let i = 0; i < 10; i++) {
 }
 
 // Seed data for posts table
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 20; i++) {
   const brand = faker.helpers.arrayElement(brands);
   const creator = faker.helpers.arrayElement(creators);
   const authorType = faker.helpers.arrayElement(["brand", "creator"]);

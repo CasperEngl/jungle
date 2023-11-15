@@ -1,25 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Fragment, Suspense } from "react";
+import { Fragment } from "react";
 
-import { AudioProvider } from "@/components/AudioProvider";
-import { AudioPlayer } from "@/components/player/AudioPlayer";
+import { UserAvatar } from "@/app/(main)/user-button";
 import { TinyWaveFormIcon } from "@/components/TinyWaveFormIcon";
 import { Waveform } from "@/components/Waveform";
 import posterImage from "@/images/poster.png";
-import {
-  auth,
-  currentUser,
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  useAuth,
-  UserButton,
-  useUser,
-} from "@clerk/nextjs";
-import { accounts, planetscale } from "@/app/planetscale/planetscale";
-import { eq } from "drizzle-orm";
-import { UserAvatar } from "@/app/(main)/user-button";
+import { currentUser, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
 function SpotifyIcon(props: React.ComponentPropsWithoutRef<"svg">) {
   return (
@@ -85,7 +72,7 @@ export default async function MainLayout({
   // console.log(account)
 
   return (
-    <AudioProvider>
+    <>
       <header className="bg-slate-50 lg:fixed lg:inset-y-0 lg:left-0 lg:flex lg:w-112 lg:items-start lg:overflow-y-auto xl:w-120">
         <div className="hidden lg:sticky lg:top-0 lg:flex lg:w-16 lg:flex-none lg:items-center lg:whitespace-nowrap lg:py-12 lg:text-sm lg:leading-7 lg:[writing-mode:vertical-rl]">
           <span className="font-mono text-slate-500">Hosted by</span>
@@ -138,9 +125,9 @@ export default async function MainLayout({
             </div>
 
             {/* <p className="mt-3 text-lg font-medium leading-8 text-slate-700">
-              Conversations with the most tragically misunderstood people of our
-              time.
-            </p> */}
+            Conversations with the most tragically misunderstood people of our
+            time.
+          </p> */}
           </div>
           {/* <Section className="mt-12 hidden lg:block" /> */}
           <section className="mt-10 lg:mt-12">
@@ -179,10 +166,12 @@ export default async function MainLayout({
           </section>
         </div>
       </header>
+
       <main className="border-t border-slate-200 lg:relative lg:mb-28 lg:ml-112 lg:border-t-0 xl:ml-120">
         <Waveform className="absolute left-0 top-0 h-20 w-full" />
         <div className="relative">{children}</div>
       </main>
+
       <footer className="border-t border-slate-200 bg-slate-50 py-10 pb-40 sm:py-16 sm:pb-32 lg:hidden">
         <div className="mx-auto px-4 sm:px-6 md:max-w-2xl md:px-4">
           <h2 className="mt-8 flex items-center font-mono text-sm font-medium leading-7 text-slate-900">
@@ -203,9 +192,6 @@ export default async function MainLayout({
           </div>
         </div>
       </footer>
-      <div className="fixed inset-x-0 bottom-0 z-10 lg:left-112 xl:left-120">
-        <AudioPlayer />
-      </div>
-    </AudioProvider>
+    </>
   );
 }

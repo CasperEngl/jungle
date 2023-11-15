@@ -29,8 +29,6 @@ export function NewsFeed(props: {
     },
     initialPageParam: props.initialFeed.nextPageToken,
     queryFn: async ({ pageParam }) => {
-      console.table({ pageParam });
-
       invariant(userId, "No user ID found");
 
       const newData = await generateFeed({
@@ -39,8 +37,6 @@ export function NewsFeed(props: {
         userId: userId,
       });
 
-      console.table({ newData });
-
       return newData;
     },
     getPreviousPageParam: (firstPage) => firstPage?.previousPageToken,
@@ -48,7 +44,6 @@ export function NewsFeed(props: {
   });
 
   useEffect(() => {
-    console.table({ inView });
     if (inView) {
       fetchNextPage();
     }
